@@ -1,25 +1,41 @@
 <template>
     <lightning-card title="Opportunity Manager" icon-name="standard:opportunity">
+
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+        </template>
+
         <div class="slds-m-around_medium">
-            <!-- This template will only render if we have data -->
+            <!-- ** NEW REFERENCE SECTION ADDED HERE ** -->
+            <div class="slds-m-bottom_medium">
+                <p><strong>Valid Stages Reference (in order):</strong></p>
+                <!-- We loop through the validStages array from our Javascript -->
+                <template for:each={validStages} for:item="stage">
+                    <!-- For each stage, we display a nice-looking badge. -->
+                    <!-- The slds-m-right_x-small adds a little space between badges. -->
+                    <lightning-badge key={stage} label={stage} class="slds-m-right_x-small slds-m-top_x-small"></lightning-badge>
+                </template>
+            </div>
+            <!-- ** END OF NEW SECTION ** -->
+
+            <!-- The datatable and other templates remain the same -->
             <template if:true={opportunities}>
-                 <lightning-datatable
-                    if:false={noOpportunitiesFound}
+                <lightning-datatable
                     key-field="Id"
-                    data={opportunities} 
+                    data={opportunities}
                     columns={columns}
+                    draft-values={draftValues}
+                    onsave={handleSave}
                     hide-checkbox-column>
                 </lightning-datatable>
-
-                <template if:true={noOpportunitiesFound}>
-                    <p>No opportunities found for this account.</p>
-                </template>
+            </template>
+            
+            <template if:true={noOpportunitiesFound}>
+                <p>No opportunities found for this account.</p>
             </template>
 
-            <!-- This template will only render if an error occurred -->
             <template if:true={error}>
-                <p>An error occurred while loading opportunities:</p>
-                <p>{error.body.message}</p>
+                <p>An error occurred: {error.body.message}</p>
             </template>
         </div>
     </lightning-card>

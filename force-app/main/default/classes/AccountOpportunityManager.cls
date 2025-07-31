@@ -28,4 +28,23 @@ public with sharing class AccountOpportunityManager {
             throw new AuraHandledException(e.getMessage());
         }
     }
+/**
+     * @description Updates a list of Opportunity records.
+     * @param opportunitiesToUpdate The list of opportunities with changed values.
+     * @return A success message string.
+     */
+    @AuraEnabled // Note: This method is NOT cacheable.
+    public static String updateOpportunities(List<Opportunity> opportunitiesToUpdate) {
+        // Use a try-catch block for robust error handling during database operations.
+        try {
+            // Perform the DML update. The 'WITH SECURITY_ENFORCED' ensures the user
+            // has permission to update these records and fields.
+            update opportunitiesToUpdate;
+            return 'Success: Opportunities updated successfully.';
+        } catch (Exception e) {
+            // If any error occurs (validation rule, trigger error, etc.),
+            // throw it back to the LWC to be displayed to the user.
+            throw new AuraHandledException(e.getMessage());
+        }
+    } 
 }
