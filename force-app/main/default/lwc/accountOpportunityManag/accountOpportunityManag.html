@@ -1,24 +1,72 @@
 <template>
-    <lightning-card title="Opportunity Manager" icon-name="standard:opportunity">
+    <!-- Le conteneur principal avec une bordure et une ombre pour un effet "flottant" -->
+    <div class="slds-card slds-box slds-theme_default">
+        
+        <!-- ==================== HEADER ==================== -->
+        <!-- Un header avec un fond différent et un padding pour faire ressortir les actions -->
+        <div class="slds-p-around_medium slds-theme_lightest slds-border_bottom">
+            <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+                
+                <!-- Titre (à gauche) -->
+                <div class="slds-media slds-media_center">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon_container slds-icon-standard-opportunity" title="Opportunity">
+                            <lightning-icon icon-name="standard:opportunity" size="medium"></lightning-icon>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <h1 class="slds-text-heading_large slds-truncate" title="Opportunity Manager">
+                            Opportunity Manager
+                        </h1>
+                    </div>
+                </div>
 
-        <template if:true={isLoading}>
-            <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
-        </template>
-
-        <div class="slds-m-around_medium">
-            <!-- ** NEW REFERENCE SECTION ADDED HERE ** -->
-            <div class="slds-m-bottom_medium">
-                <p><strong>Valid Stages Reference (in order):</strong></p>
-                <!-- We loop through the validStages array from our Javascript -->
-                <template for:each={validStages} for:item="stage">
-                    <!-- For each stage, we display a nice-looking badge. -->
-                    <!-- The slds-m-right_x-small adds a little space between badges. -->
-                    <lightning-badge key={stage} label={stage} class="slds-m-right_x-small slds-m-top_x-small"></lightning-badge>
-                </template>
+                <!-- Boutons d'action (à droite) -->
+                <div class="slds-no-flex">
+                    <lightning-button-group>
+                        <lightning-button
+                            label="New Opportunity"
+                            variant="brand"
+                            icon-name="utility:add"
+                            onclick={openModal}>
+                        </lightning-button>
+                        <lightning-button
+                            label="Delete Selected"
+                            variant="destructive-text"
+                            icon-name="utility:delete"
+                            disabled={isDeleteButtonDisabled}
+                            onclick={handleDelete}>
+                        </lightning-button>
+                    </lightning-button-group>
+                </div>
             </div>
-            <!-- ** END OF NEW SECTION ** -->
+        </div>
 
-            <!-- The datatable and other templates remain the same -->
+        <!-- ==================== BODY ==================== -->
+        <div class="slds-p-around_large">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </template>
+    
+            <!-- Section de référence avec un titre plus visible -->
+            <div class="slds-m-bottom_large">
+                <h2 class="slds-text-heading_small slds-m-bottom_small">Valid Stages Reference</h2>
+
+                <!-- ============================================= -->
+                <!-- ** CORRECTION POUR L'AFFICHAGE DES BADGES ** -->
+                <!-- ============================================= -->
+                <!-- On utilise une grille Flexbox pour un alignement parfait -->
+                <div class="slds-grid slds-wrap slds-theme_shade slds-border_all">
+                    <template for:each={validStages} for:item="stage">
+                        <!-- Chaque badge est dans sa propre div avec une marge pour l'espacement -->
+                        <div key={stage} class="slds-m-around_xx-small">
+                            <lightning-badge label={stage}></lightning-badge>
+                        </div>
+                    </template>
+                </div>
+            </div>
+    
+            <!-- Datatable -->
             <template if:true={opportunities}>
                 <lightning-datatable
                     key-field="Id"
@@ -26,17 +74,35 @@
                     columns={columns}
                     draft-values={draftValues}
                     onsave={handleSave}
-                    hide-checkbox-column>
+                    onrowselection={handleRowSelection}>
                 </lightning-datatable>
             </template>
             
+            <!-- Message si aucune opportunité n'est trouvée -->
             <template if:true={noOpportunitiesFound}>
-                <p>No opportunities found for this account.</p>
+                <div class="slds-illustration slds-illustration_small" aria-hidden="true">
+                    <img src="/apexpages/slds/latest/assets/images/illustrations/empty-state-tasks.svg" alt="No opportunities found" />
+                    <div class="slds-text-color_weak slds-align_absolute-center">
+                        <h3 class="slds-text-heading_small">No opportunities found</h3>
+                        <p>Click "New Opportunity" to get started.</p>
+                    </div>
+                </div>
             </template>
 
+            <!-- Message d'erreur -->
             <template if:true={error}>
                 <p>An error occurred: {error.body.message}</p>
             </template>
         </div>
-    </lightning-card>
+
+    </div>
+
+    <!-- La modale reste en dehors de la carte principale -->
+    <template if:true={isModalOpen}>
+        <c-opportunity-creator-modal
+            account-id={recordId}
+            onclose={closeModal}
+            onsuccess={handleSuccess}>
+        </c-opportunity-creator-modal>
+    </template>
 </template>
