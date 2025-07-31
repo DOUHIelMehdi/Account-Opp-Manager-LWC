@@ -1,0 +1,26 @@
+<template>
+    <lightning-card title="Opportunity Manager" icon-name="standard:opportunity">
+        <div class="slds-m-around_medium">
+            <!-- This template will only render if we have data -->
+            <template if:true={opportunities}>
+                 <lightning-datatable
+                    if:false={noOpportunitiesFound}
+                    key-field="Id"
+                    data={opportunities} 
+                    columns={columns}
+                    hide-checkbox-column>
+                </lightning-datatable>
+
+                <template if:true={noOpportunitiesFound}>
+                    <p>No opportunities found for this account.</p>
+                </template>
+            </template>
+
+            <!-- This template will only render if an error occurred -->
+            <template if:true={error}>
+                <p>An error occurred while loading opportunities:</p>
+                <p>{error.body.message}</p>
+            </template>
+        </div>
+    </lightning-card>
+</template>
